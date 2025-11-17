@@ -1,1 +1,189 @@
-<h1>index.html</h1>
+<h1>Quote App</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Quote App</title>
+    
+    <style>
+        /* A simple reset and base font setup */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                Helvetica, Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            
+            /* Center the main container in the viewport */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        /* The main application container */
+        main {
+            /* Fulfills the 75% viewport width requirement */
+            width: 75vw; 
+            
+            /* Best practice: Add a max-width for readability on large screens */
+            max-width: 800px; 
+            
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            
+            /* Center the controls (button and quote) inside the container */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem; /* Space between button and quote */
+        }
+
+        /* The button styling */
+        #getQuoteBtn {
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.8rem 1.8rem;
+            border: none;
+            border-radius: 8px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        #getQuoteBtn:hover {
+            background-color: #0056b3;
+        }
+
+        #getQuoteBtn:active {
+            transform: scale(0.98);
+        }
+
+        /* The area where the quote will be displayed */
+        #quoteDisplay {
+            width: 100%;
+            min-height: 100px; /* Prevents layout shift */
+            text-align: center;
+            
+            /* Helps center the placeholder text */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Styling for the quote text (dynamically added by JS) */
+        #quoteDisplay p {
+            font-size: 1.5rem;
+            font-style: italic;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 1rem;
+        }
+
+        /* Styling for the author (dynamically added by JS) */
+        #quoteDisplay cite {
+            display: block;
+            font-size: 1.1rem;
+            font-style: normal;
+            font-weight: 600;
+            color: #007bff;
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 600px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            main {
+                /* Use more screen width on mobile */
+                width: 90vw; 
+                padding: 1.5rem;
+            }
+
+            #quoteDisplay p {
+                font-size: 1.2rem;
+            }
+
+            #quoteDisplay cite {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <main>
+        <button id="getQuoteBtn">Get a New Quote</button>
+        
+        <div id="quoteDisplay">
+            <p>Click the button to get a quote!</p>
+        </div>
+    </main>
+
+    <script>
+        // Wait for the HTML document to be fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // Get references to the button and display area
+            const quoteBtn = document.getElementById('getQuoteBtn');
+            const quoteDisplay = document.getElementById('quoteDisplay');
+            
+            // The API endpoint
+            const apiUrl = 'https://quote.cs260.click';
+
+            // Define the function to fetch and display a quote
+            const getQuote = async () => {
+                // Show a loading message
+                quoteDisplay.innerHTML = '<p>Loading...</p>';
+
+                try {
+                    // Fetch data from the API
+                    const response = await fetch(apiUrl);
+                    
+                    // Check if the network response was ok
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    
+                    // Parse the JSON data
+                    const data = await response.json();
+                    
+                    // Extract the text and author
+                    // From checking the API, the structure is: { "quote": { "text": "...", "author": "..." } }
+                    const quoteText = data.quote.text;
+                    const quoteAuthor = data.quote.author;
+                    
+                    // Display the quote in the #quoteDisplay element
+                    quoteDisplay.innerHTML = `
+                        <p>"${quoteText}"</p>
+                        <cite>— ${quoteAuthor}</cite>
+                    `;
+                    
+                } catch (error) {
+                    // Log the error to the console
+                    console.error('Error fetching quote:', error);
+                    
+                    // Show an error message to the user
+                    quoteDisplay.innerHTML = '<p>Oops! Something went wrong. Please try again.</p>';
+                }
+            };
+
+            // Add a click event listener to the button
+            quoteBtn.addEventListener('click', getQuote);
+        });
+    </script>
+
+</body>
+</html>
